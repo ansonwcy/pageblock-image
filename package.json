@@ -1,0 +1,13 @@
+{
+  "name": "@pageblock/image",
+  "version": "1.0.0",
+  "dependencies": {
+    "@ijstech/components": "^0.1.10"
+  },
+  "scripts": {
+    "build": "rm -rf dist && node esbuild.js && cp -f scconfig.json dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.13.4"
+  }
+}
