@@ -5,7 +5,8 @@
     "@ijstech/components": "^0.1.10"
   },
   "scripts": {
-    "build": "rm -rf dist && node esbuild.js && cp -f scconfig.json dist"
+    "build": "rm -rf dist && node esbuild.js && cp -f scconfig.json dist",
+    "cpbuild": "npm run build && cp ./dist/image.js ../mindlink/dist"
   },
   "devDependencies": {
     "esbuild": "^0.13.4"
