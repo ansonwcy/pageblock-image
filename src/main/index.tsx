@@ -3,10 +3,8 @@ import {
   Panel,
   Image,
   Input,
-  Markdown,
   Upload,
   Control,
-  customElements,
   customModule,
   Modal,
   RadioGroup,
@@ -61,7 +59,6 @@ const autoItems = [
 ];
 
 @customModule
-@customElements("i-section-image")
 export class ImageBlock extends Module implements PageBlock {
   private data: any;
   private tempData: any;

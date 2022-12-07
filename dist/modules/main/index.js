@@ -735,8 +735,7 @@ define("@image/main", ["require", "exports", "@ijstech/components", "@image/main
         }
     };
     ImageBlock = __decorate([
-        components_2.customModule,
-        components_2.customElements("i-section-image")
+        components_2.customModule
     ], ImageBlock);
     exports.ImageBlock = ImageBlock;
 });
