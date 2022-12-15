@@ -140,7 +140,7 @@ export class ImageBlock extends Module implements PageBlock {
 
   async edit() {
     console.log("edit");
-    let img_uploader = document.getElementsByTagName("i-upload")[0].getElementsByTagName("img")[0];
+    let img_uploader = this.uploader.getElementsByTagName("img")[0];
     if (img_uploader != undefined && img_uploader.src != undefined && img_uploader.src != null)
       this.cropBtn.visible = true;
 
@@ -151,7 +151,7 @@ export class ImageBlock extends Module implements PageBlock {
 
   async confirm() {
     console.log("confirm");
-    let img_uploader = document.getElementsByTagName("i-upload")[0].getElementsByTagName("img")[0];
+    let img_uploader = this.uploader.getElementsByTagName("img")[0];
     this.cropBtn.visible = false;
     this.uploader.visible = false;
     this.img.visible = true;
@@ -206,7 +206,7 @@ export class ImageBlock extends Module implements PageBlock {
       this.data = await this.uploader.toBase64(files[0]);
     }
     this.cropBtn.visible = true;
-    let img_uploader = document.getElementsByTagName("i-upload")[0].getElementsByTagName("img")[0];
+    let img_uploader = this.uploader.getElementsByTagName("img")[0];
     this.tempData = img_uploader.src;
     this.setData(img_uploader.src);
   }
@@ -241,7 +241,7 @@ export class ImageBlock extends Module implements PageBlock {
     testImage.alt = 'test image';
 
     // get the img inside the i-upload
-    let img_uploader = document.getElementsByTagName("i-upload")[0].getElementsByTagName("img")[0];
+    let img_uploader = this.uploader.getElementsByTagName("img")[0];
     testImage.src = img_uploader.src;
     // testImage.src = this.img.url;
 
@@ -811,7 +811,7 @@ export class ImageBlock extends Module implements PageBlock {
   comfirmCrop(newX: number, newY: number, newWidth: number, newHeight: number) {
 
     console.log("comfirmCrop");
-    let img_uploader = document.getElementsByTagName("i-upload")[0].getElementsByTagName("img")[0];
+    let img_uploader = this.uploader.getElementsByTagName("img")[0];
 
     // originalImage in form of img
     const originalImage = document.createElement('img');
@@ -968,6 +968,7 @@ export class ImageBlock extends Module implements PageBlock {
             </i-hstack>
           </i-panel>
         </i-modal>
+
         <i-panel id={"pnlImage"}>
           <i-upload
             id={"uploader"}
