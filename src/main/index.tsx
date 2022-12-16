@@ -58,6 +58,29 @@ const autoItems = [
   },
 ];
 
+const configSchema = {
+  type: 'object',
+  required: [],
+  properties:
+      {
+          'width': {
+              type: 'string',
+          },
+          'height': {
+              type: 'string',
+          },
+          'position': {
+              type: 'string',
+              enum: [
+                  'left',
+                  'center',
+                  'right'
+              ]
+          }
+      }
+
+};
+
 @customModule
 export class ImageBlock extends Module implements PageBlock {
   private data: any;
@@ -91,6 +114,10 @@ export class ImageBlock extends Module implements PageBlock {
 
   async init() {
     super.init();
+  }
+
+  getConfigSchema() {
+    return configSchema;
   }
 
   async getData() {
