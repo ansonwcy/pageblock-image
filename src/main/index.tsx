@@ -76,7 +76,11 @@ const configSchema = {
                   'center',
                   'right'
               ]
-          }
+          },
+          'backgroundColor': {
+            type: 'string',
+            format: 'color'
+          },
       }
 
 };
@@ -179,11 +183,13 @@ export class ImageBlock extends Module implements PageBlock {
   async confirm() {
     console.log("confirm");
     let img_uploader = this.uploader.getElementsByTagName("img")[0];
-    this.cropBtn.visible = false;
-    this.uploader.visible = false;
-    this.img.visible = true;
-    this.img.url = this.data;
-    this.setData(img_uploader.src);
+    if (img_uploader != undefined && img_uploader.src != undefined && img_uploader.src != null) {
+      this.cropBtn.visible = false;
+      this.uploader.visible = false;
+      this.img.visible = true;
+      this.img.url = this.data;
+      this.setData(img_uploader.src);
+    }
   }
 
   async discard() {
@@ -199,29 +205,17 @@ export class ImageBlock extends Module implements PageBlock {
     this.mdConfig.visible = false;
   }
 
-  async onConfigSave() {
+  async onConfigSave(config: any) {
     console.log("onConfigSave");
-    this.tag.width = this.widthElm.value;
-    this.tag.height = this.heightElm.value;
-    this.tag.align = this.alignElm.selectedValue;
-    this.tag.auto = this.autoElm.selectedValue;
-
-    this.img.display = "flex";
-    this.img.width = this.tag.width;
-    this.img.height = this.tag.height;
-    switch (this.tag.align) {
-      case "left":
-        this.img.margin = { right: "auto" };
-        break;
-      case "center":
-        this.img.margin = { left: "auto", right: "auto" };
-        break;
-      case "right":
-        this.img.margin = { left: "auto" };
-        break;
-    }
-
-    this.mdConfig.visible = false;
+    const {width, height, position, backgroundColor} = config;
+    if (width)
+        this.img.width = width;
+    if (height)
+        this.img.height = height;
+     if(position)
+        this.pnlImage.style.textAlign = position;
+    if (backgroundColor)
+        this.pnlImage.background.color = backgroundColor;
   }
 
   validate(): boolean {
@@ -883,102 +877,6 @@ export class ImageBlock extends Module implements PageBlock {
   render() {
     return (
       <i-panel>
-        <i-modal
-          id={"mdConfig"}
-          showBackdrop={true}
-          background={{ color: "#FFF" }}
-          maxWidth={"500px"}
-          popupPlacement={"center"}
-          closeIcon={{ name: "times", fill: "#aaa" }}
-        >
-          <i-hstack justifyContent={"start"} alignItems={"start"}>
-            <i-panel
-              width={"30%"}
-              padding={{ top: 5, bottom: 5, left: 5, right: 5 }}
-            >
-              <i-input
-                id={"widthElm"}
-                caption={"Width"}
-                width={"100%"}
-                captionWidth={"46px"}
-              ></i-input>
-            </i-panel>
-            <i-panel
-              width={"30%"}
-              padding={{ top: 5, bottom: 5, left: 5, right: 5 }}
-            >
-              <i-input
-                id={"heightElm"}
-                caption={"Height"}
-                width={"100%"}
-                captionWidth={"50px"}
-              ></i-input>
-            </i-panel>
-            <i-panel
-              width={"40%"}
-              padding={{ top: 5, bottom: 5, left: 5, right: 5 }}
-            >
-              <i-label
-                width={100}
-                caption="Align"
-                margin={{ bottom: 8 }}
-              ></i-label>
-              <i-radio-group
-                id="alignElm"
-                width={"100%"}
-                selectedValue="left"
-                radioItems={alignItems}
-                onChanged={this.onChangeAlign}
-                display="block"
-              ></i-radio-group>
-            </i-panel>
-          </i-hstack>
-
-          <i-hstack justifyContent={"start"} alignItems={"center"}>
-            <i-panel
-              width={"100%"}
-              padding={{ top: 5, bottom: 5, left: 5, right: 5 }}
-            >
-              <i-label
-                width={100}
-                caption="Auto"
-                margin={{ bottom: 8 }}
-              ></i-label>
-              <i-radio-group
-                id="autoElm"
-                width={"100%"}
-                selectedValue="left"
-                radioItems={autoItems}
-                onChanged={this.onChangeAuto}
-                display="block"
-              ></i-radio-group>
-            </i-panel>
-          </i-hstack>
-
-          <i-hstack
-            justifyContent={"end"}
-            alignItems={"center"}
-            padding={{ top: 5, bottom: 5 }}
-          >
-            <i-button
-              caption={"Cancel"}
-              padding={{ top: 5, bottom: 5, left: 10, right: 10 }}
-              font={{ color: "white" }}
-              background={{ color: "#B2554D" }}
-              icon={{ name: "times", fill: "#FFF" }}
-              onClick={this.onConfigCancel}
-            ></i-button>
-            <i-button
-              caption={"Save"}
-              padding={{ top: 5, bottom: 5, left: 10, right: 10 }}
-              icon={{ name: "save", fill: "#FFF" }}
-              onClick={this.onConfigSave}
-              margin={{ left: 5 }}
-              font={{ color: "white" }}
-              background={{ color: "#77B24D" }}
-            ></i-button>
-          </i-hstack>
-        </i-modal>
 
         <i-modal
           id={"cropImgWindow"}
