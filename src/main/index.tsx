@@ -9,7 +9,9 @@ import {
   Modal,
   RadioGroup,
   Button,
-  HStack
+  HStack,
+  Label,
+  Link
 } from "@ijstech/components";
 import { PageBlock } from "@image/global";
 import './index.css';
@@ -81,6 +83,9 @@ const configSchema = {
             type: 'string',
             format: 'color'
           },
+          'url': {
+            type: 'string',
+          },
       }
 
 };
@@ -93,6 +98,7 @@ export class ImageBlock extends Module implements PageBlock {
   private cropImgWindow: Modal;
   private uploader: Upload;
   private img: Image;
+  private imgLink: Label;
   private widthElm: Input;
   private heightElm: Input;
   private alignElm: RadioGroup;
@@ -207,7 +213,7 @@ export class ImageBlock extends Module implements PageBlock {
 
   async onConfigSave(config: any) {
     console.log("onConfigSave");
-    const {width, height, position, backgroundColor} = config;
+    const {width, height, position, backgroundColor, url} = config;
     if (width)
         this.img.width = width;
     if (height)
@@ -216,6 +222,9 @@ export class ImageBlock extends Module implements PageBlock {
         this.pnlImage.style.textAlign = position;
     if (backgroundColor)
         this.pnlImage.background.color = backgroundColor;
+    if (url)
+        this.imgLink.link = new Link(this, { href: url, target: '_blank' })
+    
   }
 
   validate(): boolean {
@@ -902,7 +911,9 @@ export class ImageBlock extends Module implements PageBlock {
             height={'100%'}
           ></i-upload>
 
-          <i-image id={"img"} visible={false}></i-image>
+          <i-label id={"imgLink"}>
+            <i-image id={"img"} visible={false}></i-image>
+          </i-label>
           <i-button id={'cropBtn'} caption='crop' onClick={this.showCropPopUpWindow} visible={false} margin={{ left: '1rem' }}></i-button>
         </i-panel>
       </i-panel>
