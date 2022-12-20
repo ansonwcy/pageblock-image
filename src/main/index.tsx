@@ -63,32 +63,26 @@ const autoItems = [
 const configSchema = {
   type: 'object',
   required: [],
-  properties:
-      {
-          'width': {
-              type: 'string',
-          },
-          'height': {
-              type: 'string',
-          },
-          'position': {
-              type: 'string',
-              enum: [
-                  'left',
-                  'center',
-                  'right'
-              ]
-          },
-          'backgroundColor': {
-            type: 'string',
-            format: 'color'
-          },
-          'url': {
-            type: 'string',
-          },
-      }
-
-};
+  properties: {
+    width: {
+      type: 'string',
+    },
+    height: {
+      type: 'string',
+    },
+    position: {
+      type: 'string',
+      enum: ['left', 'center', 'right'],
+    },
+    // 'backgroundColor': {
+    //   type: 'string',
+    //   format: 'color'
+    // },
+    // 'url': {
+    //   type: 'string',
+    // },
+  }
+}
 
 @customModule
 export class ImageBlock extends Module implements PageBlock {
@@ -99,10 +93,10 @@ export class ImageBlock extends Module implements PageBlock {
   private uploader: Upload;
   private img: Image;
   private imgLink: Label;
-  private widthElm: Input;
-  private heightElm: Input;
-  private alignElm: RadioGroup;
-  private autoElm: RadioGroup;
+  // private widthElm: Input;
+  // private heightElm: Input;
+  // private alignElm: RadioGroup;
+  // private autoElm: RadioGroup;
   private pnlImage: Panel;
   private croppingImg: Image;
   private imgToCrop: Image;
@@ -110,13 +104,15 @@ export class ImageBlock extends Module implements PageBlock {
   private croppingImgPnl: HStack;
   private cropBtn: Button;
   private confirmCropHsk: HStack;
+  private linkStack: Panel;
+  private edtLink: Input;
 
   private _newX: number = 0;
   private _newY: number = 0;
   private _newWidth: number = 0;
   private _newHeight: number = 0;
 
-  tag: any = {};
+  tag: any;
   defaultEdit: boolean = true;
   readonly onConfirm: () => Promise<void>;
   readonly onDiscard: () => Promise<void>;
@@ -139,9 +135,14 @@ export class ImageBlock extends Module implements PageBlock {
     this.data = value;
 
     const uploader = document.getElementById("uploader");
-    uploader!.getElementsByTagName("img")[0].src = value;
+    const imageElm = uploader?.getElementsByTagName("img")[0];
+    if (imageElm)
+      imageElm.src = value;
+    else
+      this.edtLink.value = value;
 
     this.uploader.visible = false;
+    this.linkStack.visible = false;
     this.img.visible = true;
     this.img.url = value;
     // console.log('img url: ' + this.img.url)
@@ -169,10 +170,10 @@ export class ImageBlock extends Module implements PageBlock {
           break;
       }
     }
-    this.widthElm.value = value.width;
-    this.heightElm.value = value.height;
-    this.alignElm.selectedValue = value.align;
-    this.autoElm.selectedValue = value.auto;
+    // this.widthElm.value = value.width;
+    // this.heightElm.value = value.height;
+    // this.alignElm.selectedValue = value.align;
+    // this.autoElm.selectedValue = value.auto;
   }
 
   async edit() {
@@ -184,17 +185,21 @@ export class ImageBlock extends Module implements PageBlock {
     this.tempData = this.img.url;
     this.img.visible = false;
     this.uploader.visible = true;
+    this.linkStack.visible = true;
   }
 
   async confirm() {
     console.log("confirm");
-    let img_uploader = this.uploader.getElementsByTagName("img")[0];
-    if (img_uploader != undefined && img_uploader.src != undefined && img_uploader.src != null) {
+    const img_uploader = this.uploader.getElementsByTagName("img")[0];
+    const hasUploader = img_uploader != undefined && img_uploader.src != undefined && img_uploader.src != null;
+    const hasUrl = this.edtLink.value;
+    if (hasUploader || hasUrl) {
       this.cropBtn.visible = false;
       this.uploader.visible = false;
+      this.linkStack.visible = false;
       this.img.visible = true;
       this.img.url = this.data;
-      this.setData(img_uploader.src);
+      this.setData(img_uploader?.src || this.edtLink.value);
     }
   }
 
@@ -213,6 +218,7 @@ export class ImageBlock extends Module implements PageBlock {
 
   async onConfigSave(config: any) {
     console.log("onConfigSave");
+    this.tag = config;
     const {width, height, position, backgroundColor, url} = config;
     if (width)
         this.img.width = width;
@@ -220,10 +226,10 @@ export class ImageBlock extends Module implements PageBlock {
         this.img.height = height;
      if(position)
         this.pnlImage.style.textAlign = position;
-    if (backgroundColor)
-        this.pnlImage.background.color = backgroundColor;
-    if (url)
-        this.imgLink.link = new Link(this, { href: url, target: '_blank' })
+    // if (backgroundColor)
+    //     this.pnlImage.background.color = backgroundColor;
+    // if (url)
+    //     this.imgLink.link = new Link(this, { href: url, target: '_blank' })
     
   }
 
@@ -239,6 +245,12 @@ export class ImageBlock extends Module implements PageBlock {
     let img_uploader = this.uploader.getElementsByTagName("img")[0];
     this.tempData = img_uploader.src;
     this.setData(img_uploader.src);
+  }
+
+  handleRemoved(control: Control, file: File) {
+    this.cropBtn.visible = false;
+    this.data = this.edtLink.value || '';
+    this.tempData = this.edtLink.value || '';
   }
 
   onChangeAlign(source: Control, event: Event) {
@@ -882,6 +894,10 @@ export class ImageBlock extends Module implements PageBlock {
     // this.cropBtn.visible = false;
   }
 
+  onChangedLink(source: Control) {
+    const link = (source as Input).value;
+    this.data = link;
+  }
 
   render() {
     return (
@@ -903,19 +919,25 @@ export class ImageBlock extends Module implements PageBlock {
           </i-panel>
         </i-modal>
 
-        <i-panel id={"pnlImage"}>
+        <i-vstack id={"pnlImage"}>
           <i-upload
             id={"uploader"}
-            onChanged={this.handleUploaderOnChange}
             multiple={true}
             height={'100%'}
+            onChanged={this.handleUploaderOnChange}
+            onRemoved={this.handleRemoved}
           ></i-upload>
-
           <i-label id={"imgLink"}>
-            <i-image id={"img"} visible={false}></i-image>
+            <i-image id={"img"} visible={false} margin={{bottom: '1rem'}}></i-image>
           </i-label>
-          <i-button id={'cropBtn'} caption='crop' onClick={this.showCropPopUpWindow} visible={false} margin={{ left: '1rem' }}></i-button>
-        </i-panel>
+          <i-panel>
+            <i-button id={'cropBtn'} caption='crop' onClick={this.showCropPopUpWindow} visible={false} margin={{bottom: '1rem', top: '1rem'}} />
+          </i-panel>
+          <i-panel id="linkStack">
+            <i-label caption="URL"></i-label>
+            <i-input id="edtLink" width="100%" onChanged={this.onChangedLink.bind(this)}></i-input>
+          </i-panel>
+        </i-vstack>
       </i-panel>
     );
   }
