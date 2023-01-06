@@ -52,6 +52,17 @@ Styles.cssRule('#cropImgWindow', {
       position: 'absolute',
       top: '0px',
       left: '0px'
+    }
+  }
+});
+
+Styles.cssRule('#pnlImage', {
+  $nest: {
+    "i-upload i-button": {
+      display: "none"
     },
+    ".dropBoxTxt": {
+      color: "#2F4050"
+    }
   }
 });

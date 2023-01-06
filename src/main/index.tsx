@@ -106,6 +106,7 @@ export class ImageBlock extends Module implements PageBlock {
   private confirmCropHsk: HStack;
   private linkStack: Panel;
   private edtLink: Input;
+  private imgLinkStack: HStack;
 
   private _newX: number = 0;
   private _newY: number = 0;
@@ -120,6 +121,7 @@ export class ImageBlock extends Module implements PageBlock {
 
   async init() {
     super.init();
+    this.uploaderStyle();
   }
 
   getConfigSchema() {
@@ -185,7 +187,7 @@ export class ImageBlock extends Module implements PageBlock {
     this.tempData = this.img.url;
     this.img.visible = false;
     this.uploader.visible = true;
-    this.linkStack.visible = true;
+    this.linkStack.visible = true // false
   }
 
   async confirm() {
@@ -201,6 +203,13 @@ export class ImageBlock extends Module implements PageBlock {
       this.img.url = this.data;
       this.setData(img_uploader?.src || this.edtLink.value);
     }
+  }
+
+  uploaderStyle() {
+    let txt = document.createElement("strong");
+    txt.innerHTML = "Drop files here or click to upload.";
+    txt.classList.add("dropBoxTxt")
+    this.uploader.childNodes[0].childNodes[0].appendChild(txt);
   }
 
   async discard() {
@@ -219,18 +228,19 @@ export class ImageBlock extends Module implements PageBlock {
   async onConfigSave(config: any) {
     console.log("onConfigSave");
     this.tag = config;
-    const {width, height, position, backgroundColor, url} = config;
+    const { width, height, position, backgroundColor, url } = config;
     if (width)
-        this.img.width = width;
+      this.img.width = width;
     if (height)
-        this.img.height = height;
-     if(position)
-        this.pnlImage.style.textAlign = position;
-    // if (backgroundColor)
-    //     this.pnlImage.background.color = backgroundColor;
-    // if (url)
-    //     this.imgLink.link = new Link(this, { href: url, target: '_blank' })
-    
+      this.img.height = height;
+    if (position)
+      this.pnlImage.style.textAlign = position;
+    // deleted
+    if (backgroundColor)
+        this.pnlImage.background.color = backgroundColor;
+    if (url)
+        this.imgLink.link = new Link(this, { href: url, target: '_blank' })
+
   }
 
   validate(): boolean {
@@ -240,6 +250,12 @@ export class ImageBlock extends Module implements PageBlock {
   async handleUploaderOnChange(control: Control, files: any[]) {
     if (files && files[0]) {
       this.data = await this.uploader.toBase64(files[0]);
+      this.uploader.width = this.uploader.getElementsByTagName("img")[0].width;
+      this.uploader.height = this.uploader.getElementsByTagName("img")[0].height;
+      // this.imgLinkStack.style.marginTop = "1rem"
+    } else {
+      this.uploader.width = "100%";
+      this.uploader.height = "100%"
     }
     this.cropBtn.visible = true;
     let img_uploader = this.uploader.getElementsByTagName("img")[0];
@@ -251,6 +267,8 @@ export class ImageBlock extends Module implements PageBlock {
     this.cropBtn.visible = false;
     this.data = this.edtLink.value || '';
     this.tempData = this.edtLink.value || '';
+    this.uploader.width = "100%";
+    this.uploader.height = "100%"
   }
 
   onChangeAlign(source: Control, event: Event) {
@@ -310,7 +328,7 @@ export class ImageBlock extends Module implements PageBlock {
     // append a button to croppingImgPnl
     this.croppingImgPnl.appendChild(
       <i-hstack id='confirmCropHsk' width='100%' horizontalAlignment="center" top={canvas.height} padding={{ top: '2rem', bottom: '1rem' }}>
-        <i-button id='confirmCropBtn' caption='confirm to crop'
+        <i-button id='confirmCropBtn' caption='Confirm' font={{ color: '#ffffff' }}
           onClick={() => this.comfirmCrop(this._newX, this._newY, this._newWidth, this._newHeight)} />
       </i-hstack>
     )
@@ -892,6 +910,9 @@ export class ImageBlock extends Module implements PageBlock {
     cropperDiv!.remove()
     this.croppingImgPnl.innerHTML = "";
     // this.cropBtn.visible = false;
+
+    this.uploader.width = this.uploader.getElementsByTagName("img")[0].width;
+    this.uploader.height = this.uploader.getElementsByTagName("img")[0].height;
   }
 
   onChangedLink(source: Control) {
@@ -913,26 +934,33 @@ export class ImageBlock extends Module implements PageBlock {
           closeIcon={{ name: "times", fill: "#aaa" }}
         >
           <i-panel margin={{ top: '1rem', bottom: '1rem' }}>
-            <i-hstack id={'croppingImgPnl'}>
-
-            </i-hstack>
+            <i-hstack id={'croppingImgPnl'} />
           </i-panel>
         </i-modal>
 
         <i-vstack id={"pnlImage"}>
-          <i-upload
-            id={"uploader"}
-            multiple={true}
-            height={'100%'}
-            onChanged={this.handleUploaderOnChange}
-            onRemoved={this.handleRemoved}
-          ></i-upload>
-          <i-label id={"imgLink"}>
-            <i-image id={"img"} visible={false} margin={{bottom: '1rem'}}></i-image>
-          </i-label>
-          <i-panel>
-            <i-button id={'cropBtn'} caption='crop' onClick={this.showCropPopUpWindow} visible={false} margin={{bottom: '1rem', top: '1rem'}} />
-          </i-panel>
+          <i-hstack width="100%" horizontalAlignment="center">
+            <i-upload
+              margin={{ top: '1rem', left: '1rem', right: '1rem', bottom: '1rem' }}
+              id={"uploader"}
+              multiple={true}
+              height={'100%'}
+              width={'100%'}
+              onChanged={this.handleUploaderOnChange}
+              onRemoved={this.handleRemoved}
+            ></i-upload>
+          </i-hstack>
+
+          <i-hstack id="imgLinkStack" width="100%" horizontalAlignment="center">
+            <i-label id={"imgLink"}>
+              <i-image id={"img"} visible={false}></i-image>
+            </i-label>
+          </i-hstack>
+
+          <i-hstack width="100%" horizontalAlignment="center">
+            <i-button id={'cropBtn'} caption='Crop image' font={{ color: '#ffffff' }} onClick={this.showCropPopUpWindow} visible={false} margin={{ left: '1rem', right: '1rem', bottom: '1rem', top: '1rem' }} />
+          </i-hstack>
+
           <i-panel id="linkStack">
             <i-label caption="URL"></i-label>
             <i-input id="edtLink" width="100%" onChanged={this.onChangedLink.bind(this)}></i-input>
